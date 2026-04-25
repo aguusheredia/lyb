@@ -1,1456 +1,912 @@
-/* Pastas Caseras — inspiración visual landing Facebook/WhatsApp (tonos verde bosque, crema, oro) */
-:root {
-  --bg: #faf6ef;
-  --bg-alt: #f0e9db;
-  --surface: #fffdf8;
-  --ink: #2a2318;
-  --ink-muted: #5e574a;
-  /* Marca: verde oliva / bosque (cabecera y títulos) */
-  --forest: #1a3d2f;
-  --forest-mid: #2d5a47;
-  --forest-light: #3d6b54;
-  --accent: var(--forest-mid);
-  --accent-soft: #c9a24a;
-  --gold: #a67c1a;
-  --gold-light: #e0c066;
-  --cream: #faf6ef;
-  --cream-bright: #fffef9;
-  --whatsapp: #25d366;
-  --whatsapp-dark: #1da851;
-  --radius: 12px;
-  --radius-lg: 20px;
-  --shadow: 0 14px 44px rgba(26, 61, 47, 0.1);
-  --shadow-soft: 0 4px 24px rgba(26, 61, 47, 0.06);
-  --font-display: "Cormorant Garamond", Georgia, serif;
-  --font-body: "Outfit", system-ui, sans-serif;
-}
+(function () {
+  "use strict";
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
+  var WA_PHONE = "5491126072655";
+  var STORAGE_KEY = "pastas-cart-v1";
 
-html {
-  scroll-behavior: smooth;
-}
+  var PRICES = {
+    fideo: { comun: 4000, morron: 5000, espinaca: 5000 },
+    sorrentinoDocena: 7000,
+    sorrentinoDocenaPremium: 8000,
+    sorrentinoPremiumRellenos: ["Pollo", "Bondiola", "Osobuco"],
+    postre: { oreo: 4500, chocotorta: 5000 },
+  };
 
-body {
-  margin: 0;
-  font-family: var(--font-body);
-  font-weight: 400;
-  color: var(--ink);
-  background: var(--bg);
-  line-height: 1.55;
-  font-size: 1.05rem;
-}
+  var FIDEO_LABELS = {
+    comun: "Común",
+    morron: "Morrón",
+    espinaca: "Espinaca",
+  };
 
-img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-}
+  var POSTRE_LABELS = {
+    oreo: "Postre de Oreo",
+    chocotorta: "Postre de chocotorta",
+  };
 
-a {
-  color: var(--forest-mid);
-  text-decoration: none;
-}
+  var cart = [];
 
-a:hover {
-  color: var(--forest);
-  text-decoration: underline;
-}
+  var menuToggle = document.querySelector(".menu-toggle");
+  var mobileNav = document.getElementById("mobile-nav");
 
-.container {
-  width: min(1100px, 92vw);
-  margin-inline: auto;
-}
-
-/* Header */
-.site-header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: linear-gradient(180deg, var(--forest) 0%, #163529 100%);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(201, 162, 74, 0.22);
-  box-shadow: var(--shadow-soft);
-}
-
-.header-inner {
-  width: min(1100px, 92vw);
-  margin-inline: auto;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.85rem 0;
-  flex-wrap: wrap;
-}
-
-.logo {
-  font-family: var(--font-display);
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: var(--cream-bright);
-  letter-spacing: 0.02em;
-}
-
-.logo:hover {
-  text-decoration: none;
-  color: var(--gold-light);
-}
-
-.tagline-header {
-  margin: 0;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.2em;
-  color: rgba(255, 248, 235, 0.75);
-  text-transform: uppercase;
-}
-
-.nav-main {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  flex-wrap: wrap;
-}
-
-.nav-main a {
-  font-size: 0.92rem;
-  color: rgba(255, 250, 242, 0.88);
-  font-weight: 500;
-}
-
-.nav-main a:hover {
-  color: var(--gold-light);
-  text-decoration: none;
-}
-
-.nav-cta {
-  background: var(--whatsapp);
-  color: #fff !important;
-  padding: 0.45rem 0.9rem;
-  border-radius: 999px;
-  font-weight: 600;
-}
-
-.nav-cta:hover {
-  background: var(--whatsapp-dark);
-  text-decoration: none;
-}
-
-.nav-cart {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.45rem 0.85rem;
-  border-radius: 999px;
-  border: 2px solid rgba(201, 162, 74, 0.45);
-  background: rgba(255, 253, 248, 0.97);
-  font-family: var(--font-body);
-  font-size: 0.92rem;
-  font-weight: 600;
-  color: var(--forest);
-  cursor: pointer;
-  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
-}
-
-.nav-cart:hover {
-  border-color: var(--gold-light);
-  box-shadow: 0 2px 12px rgba(201, 162, 74, 0.25);
-  text-decoration: none;
-}
-
-.cart-badge {
-  min-width: 1.35rem;
-  height: 1.35rem;
-  padding: 0 0.35rem;
-  border-radius: 999px;
-  background: linear-gradient(145deg, var(--gold) 0%, #8a6220 100%);
-  color: #fff;
-  font-size: 0.72rem;
-  font-weight: 700;
-  line-height: 1.35rem;
-  text-align: center;
-}
-
-.cart-badge--inline {
-  margin-left: 0.25rem;
-}
-
-.mobile-nav-cart {
-  display: none;
-  width: 100%;
-  margin-top: 0.25rem;
-  padding: 0.65rem 1rem;
-  border-radius: var(--radius);
-  border: 2px solid rgba(201, 162, 74, 0.45);
-  background: rgba(255, 253, 248, 0.97);
-  font-family: var(--font-body);
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--forest);
-  cursor: pointer;
-  text-align: center;
-}
-
-.menu-toggle {
-  display: none;
-  margin-left: auto;
-  width: 44px;
-  height: 44px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  padding: 8px;
-  flex-direction: column;
-  justify-content: center;
-  gap: 6px;
-}
-
-.menu-toggle span {
-  display: block;
-  height: 2px;
-  width: 100%;
-  background: var(--cream-bright);
-  border-radius: 1px;
-  transition: transform 0.2s, opacity 0.2s;
-}
-
-.menu-toggle[aria-expanded="true"] span:nth-child(1) {
-  transform: translateY(8px) rotate(45deg);
-}
-
-.menu-toggle[aria-expanded="true"] span:nth-child(2) {
-  opacity: 0;
-}
-
-.menu-toggle[aria-expanded="true"] span:nth-child(3) {
-  transform: translateY(-8px) rotate(-45deg);
-}
-
-.mobile-nav {
-  display: none;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding: 1rem 0 1.25rem;
-  width: min(1100px, 92vw);
-  margin-inline: auto;
-  border-top: 1px solid rgba(201, 162, 74, 0.2);
-  background: rgba(0, 0, 0, 0.12);
-}
-
-.mobile-nav a {
-  font-weight: 500;
-  color: rgba(255, 250, 242, 0.95);
-  padding: 0.35rem 0;
-}
-
-.mobile-nav a:hover {
-  color: var(--gold-light);
-}
-
-@media (max-width: 768px) {
-  .nav-main {
-    display: none;
+  function genId() {
+    if (window.crypto && typeof crypto.randomUUID === "function") {
+      return crypto.randomUUID();
+    }
+    return "id-" + Date.now() + "-" + Math.random().toString(36).slice(2, 9);
   }
 
-  .menu-toggle {
-    display: flex;
+  function clampMedios(n) {
+    var x = parseInt(String(n), 10);
+    if (isNaN(x) || x < 1) return 1;
+    if (x > 99) return 99;
+    return x;
   }
 
-  .mobile-nav:not([hidden]) {
-    display: flex;
+  function clampDocenas(n) {
+    var x = parseInt(String(n), 10);
+    if (isNaN(x) || x < 1) return 1;
+    if (x > 99) return 99;
+    return x;
   }
 
-  .mobile-nav-cart {
-    display: block;
+  function formatMoney(n) {
+    return (
+      "$" +
+      Math.round(n).toLocaleString("es-AR", { maximumFractionDigits: 0 })
+    );
   }
 
-  .tagline-header {
-    display: none;
-  }
-}
-
-/* Hero */
-.hero {
-  position: relative;
-  padding: clamp(3rem, 8vw, 5.5rem) 0 clamp(4rem, 10vw, 6rem);
-  overflow: hidden;
-}
-
-.hero-bg {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 90% 70% at 50% -10%, rgba(224, 192, 102, 0.18), transparent 55%),
-    radial-gradient(ellipse 60% 50% at 100% 100%, rgba(45, 90, 71, 0.35), transparent 50%),
-    linear-gradient(165deg, var(--forest) 0%, var(--forest-mid) 42%, #234d3d 100%);
-  pointer-events: none;
-}
-
-.hero-content {
-  position: relative;
-  width: min(640px, 92vw);
-  margin-inline: auto;
-  text-align: center;
-}
-
-.hero-brand {
-  margin: 0 auto 1.25rem;
-  max-width: min(260px, 58vw);
-}
-
-.hero-logo {
-  display: block;
-  width: 100%;
-  height: auto;
-  margin-inline: auto;
-  object-fit: contain;
-  filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.35))
-    drop-shadow(0 2px 8px rgba(224, 192, 102, 0.15));
-}
-
-.hero-kicker {
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: rgba(255, 248, 235, 0.82);
-  margin: 0 0 1rem;
-}
-
-.hero h1 {
-  font-family: var(--font-display);
-  font-size: clamp(2.4rem, 6vw, 3.5rem);
-  font-weight: 700;
-  line-height: 1.15;
-  margin: 0 0 1rem;
-  color: var(--cream-bright);
-  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.2);
-}
-
-.hero-accent {
-  display: block;
-  font-style: italic;
-  font-weight: 600;
-  color: var(--gold-light);
-  margin-top: 0.25rem;
-}
-
-.hero-lead {
-  margin: 0 0 0.75rem;
-  color: rgba(255, 252, 245, 0.92);
-  font-size: 1.08rem;
-  max-width: 34ch;
-  margin-inline: auto;
-}
-
-.hero-meta {
-  margin: 0 0 0.5rem;
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: var(--gold-light);
-}
-
-.hero-location {
-  margin: 0 0 1.75rem;
-  font-size: 0.9rem;
-  font-weight: 400;
-  color: rgba(255, 252, 245, 0.88);
-  line-height: 1.45;
-  max-width: 32ch;
-  margin-inline: auto;
-}
-
-.hero-location strong {
-  font-weight: 600;
-  color: rgba(255, 250, 242, 0.98);
-}
-
-.hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  justify-content: center;
-}
-
-.hero .btn-ghost {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.35);
-}
-
-.hero .btn-ghost:hover {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: var(--gold-light);
-  color: #fff;
-}
-
-/* Buttons */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.75rem 1.5rem;
-  border-radius: 999px;
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 0.98rem;
-  border: 2px solid transparent;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
-}
-
-.btn:hover {
-  text-decoration: none;
-  transform: translateY(-1px);
-}
-
-.btn-primary {
-  background: var(--whatsapp);
-  color: #fff;
-  border-color: var(--whatsapp);
-}
-
-.btn-primary:hover {
-  background: var(--whatsapp-dark);
-  border-color: var(--whatsapp-dark);
-  color: #fff;
-}
-
-.btn-ghost {
-  background: var(--surface);
-  color: var(--ink);
-  border-color: rgba(26, 61, 47, 0.18);
-}
-
-.btn-ghost:hover {
-  border-color: var(--forest-mid);
-  color: var(--forest);
-}
-
-.btn-large {
-  padding: 0.95rem 2rem;
-  font-size: 1.05rem;
-}
-
-.btn-accent {
-  background: transparent;
-  color: var(--forest-mid);
-  border-color: var(--forest-mid);
-}
-
-.btn-accent:hover {
-  background: rgba(26, 61, 47, 0.08);
-  color: var(--forest);
-  border-color: var(--forest);
-}
-
-.card-actions {
-  margin-top: 1.5rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid rgba(26, 61, 47, 0.1);
-}
-
-.btn-block {
-  width: 100%;
-  margin-top: 0.75rem;
-}
-
-.product-add {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid rgba(26, 61, 47, 0.1);
-}
-
-.product-add-label {
-  display: block;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--forest-mid);
-  margin-bottom: 0.5rem;
-}
-
-.medios-control {
-  max-width: none;
-  width: 100%;
-}
-
-.medios-display {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 2.75rem;
-  padding: 0.35rem 0.4rem;
-  text-align: center;
-  font-family: var(--font-body);
-  font-size: clamp(0.78rem, 2.6vw, 0.95rem);
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  border: 2px solid rgba(26, 61, 47, 0.15);
-  border-radius: var(--radius);
-  background: var(--bg);
-  color: var(--forest);
-  white-space: nowrap;
-}
-
-.product-add-hint {
-  margin: 0.4rem 0 0;
-  font-size: 0.82rem;
-  color: var(--ink-muted);
-}
-
-/* Carrito */
-.cart-dialog {
-  padding: 0;
-  border: none;
-  border-radius: var(--radius-lg);
-  border-top: 3px solid rgba(201, 162, 74, 0.65);
-  width: min(100vw - 1.5rem, 440px);
-  max-height: min(90vh, 720px);
-  background: var(--surface);
-  color: var(--ink);
-  box-shadow: 0 24px 60px rgba(26, 61, 47, 0.25);
-}
-
-.cart-dialog::backdrop {
-  background: rgba(26, 61, 47, 0.45);
-  backdrop-filter: blur(4px);
-}
-
-.cart-dialog-inner {
-  display: flex;
-  flex-direction: column;
-  max-height: min(90vh, 720px);
-}
-
-.cart-dialog-header {
-  position: relative;
-  padding: clamp(1.25rem, 4vw, 1.5rem);
-  padding-right: 3rem;
-  border-bottom: 1px solid rgba(45, 90, 71, 0.1);
-  flex-shrink: 0;
-}
-
-.cart-dialog-header h2 {
-  font-family: var(--font-display);
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin: 0 0 0.35rem;
-  color: var(--forest);
-}
-
-.cart-dialog-sub {
-  margin: 0;
-  font-size: 0.9rem;
-  color: var(--ink-muted);
-}
-
-.cart-empty {
-  padding: 2rem 1.5rem 2.5rem;
-  text-align: center;
-}
-
-.cart-empty p {
-  margin: 0 0 1.25rem;
-  color: var(--ink-muted);
-}
-
-.cart-empty .btn {
-  margin: 0.35rem;
-}
-
-.cart-list {
-  list-style: none;
-  margin: 0;
-  padding: 0.75rem 0;
-  overflow-y: auto;
-  flex: 1;
-  min-height: 0;
-}
-
-.cart-line {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid rgba(45, 90, 71, 0.08);
-}
-
-.cart-line-main {
-  flex: 1;
-  min-width: 0;
-}
-
-.cart-line-title {
-  font-size: 1.05rem;
-  font-weight: 600;
-  display: block;
-  margin-bottom: 0.25rem;
-}
-
-.cart-line-detail {
-  margin: 0;
-  font-size: 0.88rem;
-  color: var(--ink-muted);
-  line-height: 1.4;
-}
-
-.cart-line-actions {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.35rem;
-  flex-shrink: 0;
-}
-
-.cart-line-price {
-  font-family: var(--font-display);
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--gold);
-}
-
-.cart-line-remove {
-  border: none;
-  background: none;
-  padding: 0.2rem 0;
-  font-family: var(--font-body);
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--ink-muted);
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-.cart-line-remove:hover {
-  color: var(--forest-mid);
-}
-
-.cart-dialog-footer {
-  padding: 1rem 1.25rem 1.35rem;
-  border-top: 1px solid rgba(45, 90, 71, 0.12);
-  background: var(--bg);
-  flex-shrink: 0;
-}
-
-.cart-total-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 0.5rem;
-  font-size: 1.05rem;
-}
-
-.cart-total-row strong {
-  font-family: var(--font-display);
-  font-size: 1.5rem;
-  color: var(--gold);
-}
-
-.cart-total-note {
-  margin: 0 0 1rem;
-  font-size: 0.78rem;
-  color: var(--ink-muted);
-  line-height: 1.4;
-}
-
-.cart-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.65rem;
-}
-
-@media (min-width: 400px) {
-  .cart-actions {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: flex-end;
+  function formatKgFromMedios(mediosKg) {
+    var kg = mediosKg * 0.5;
+    var s = kg.toLocaleString("es-AR", {
+      minimumFractionDigits: kg % 1 ? 1 : 0,
+      maximumFractionDigits: 1,
+    });
+    return s + " kg";
   }
 
-  .cart-actions .btn-ghost {
-    margin-right: auto;
-  }
-}
-
-/* Modal — Arma tu sorrentino */
-.modal {
-  padding: 0;
-  border: none;
-  border-radius: var(--radius-lg);
-  border-top: 3px solid rgba(201, 162, 74, 0.65);
-  max-width: 520px;
-  width: min(92vw, 520px);
-  background: var(--surface);
-  color: var(--ink);
-  box-shadow: 0 24px 60px rgba(26, 61, 47, 0.2);
-}
-
-.modal::backdrop {
-  background: rgba(26, 61, 47, 0.5);
-  backdrop-filter: blur(4px);
-}
-
-.modal-inner {
-  padding: clamp(1.25rem, 4vw, 1.75rem);
-}
-
-.modal-header {
-  position: relative;
-  padding-right: 2.5rem;
-  margin-bottom: 1.25rem;
-}
-
-.modal-header h2 {
-  font-family: var(--font-display);
-  font-size: 1.65rem;
-  font-weight: 700;
-  margin: 0 0 0.35rem;
-  color: var(--forest);
-}
-
-.modal-sub {
-  margin: 0;
-  font-size: 0.92rem;
-  color: var(--ink-muted);
-  line-height: 1.45;
-}
-
-.modal-close {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 2.25rem;
-  height: 2.25rem;
-  border: none;
-  background: rgba(26, 61, 47, 0.06);
-  border-radius: 50%;
-  font-size: 1.5rem;
-  line-height: 1;
-  cursor: pointer;
-  color: var(--ink);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s;
-}
-
-.modal-close:hover {
-  background: rgba(45, 90, 71, 0.15);
-}
-
-.form-row {
-  margin-bottom: 1.1rem;
-}
-
-.form-row label {
-  display: block;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--forest-mid);
-  margin-bottom: 0.45rem;
-}
-
-.form-row input[type="text"],
-.form-row select {
-  width: 100%;
-  padding: 0.65rem 0.85rem;
-  font-family: var(--font-body);
-  font-size: 1rem;
-  border: 2px solid rgba(26, 61, 47, 0.15);
-  border-radius: var(--radius);
-  background: var(--bg);
-  color: var(--ink);
-}
-
-.form-row input[type="text"]:focus,
-.form-row select:focus {
-  outline: none;
-  border-color: var(--forest-mid);
-  box-shadow: 0 0 0 3px rgba(45, 90, 71, 0.15);
-}
-
-.form-row select {
-  cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%232d5a47' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.85rem center;
-  padding-right: 2.25rem;
-}
-
-.form-hint {
-  margin: 0.35rem 0 0;
-  font-size: 0.82rem;
-  color: var(--ink-muted);
-}
-
-.checkout-envio-notice {
-  margin: -0.35rem 0 1.1rem;
-  padding: 0.75rem 0.95rem;
-  border-radius: var(--radius);
-  border: 1px solid rgba(201, 162, 74, 0.45);
-  background: rgba(224, 192, 102, 0.12);
-  color: var(--forest-mid);
-  font-size: 0.92rem;
-  line-height: 1.45;
-}
-
-.checkout-envio-notice p {
-  margin: 0;
-}
-
-.form-fieldset {
-  border: none;
-  margin: 0 0 1.35rem;
-  padding: 0;
-}
-
-.form-fieldset legend {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 0.65rem;
-  padding: 0;
-  display: block;
-  width: 100%;
-}
-
-.option-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.5rem;
-}
-
-/* Masa: 5 opciones — 3 en primera fila, 2 centradas en segunda */
-.option-grid--5 {
-  grid-template-columns: repeat(3, 1fr);
-}
-
-.option-grid--5 .option-card:nth-child(4) {
-  grid-column: 1 / 2;
-  margin-left: calc(50% + 0.25rem);
-}
-
-.option-grid--5 .option-card:nth-child(5) {
-  grid-column: 2 / 3;
-}
-
-/* Relleno: 6 opciones — 3 × 2 */
-.option-grid--relleno {
-  grid-template-columns: 1fr;
-}
-
-@media (min-width: 420px) {
-  .option-grid--relleno {
-    grid-template-columns: repeat(3, 1fr);
+  /** Muestra el peso en el selector: 500 GR, 1 KG, 1,5 KG, … */
+  function formatPesoSelector(mediosKg) {
+    var m = clampMedios(mediosKg);
+    if (m === 1) {
+      return "500 GR";
+    }
+    var kg = m * 0.5;
+    if (kg % 1 === 0) {
+      return kg + " KG";
+    }
+    return (
+      kg.toLocaleString("es-AR", {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1,
+      }) + " KG"
+    );
   }
 
-  .option-grid--5 .option-card:nth-child(4) {
-    grid-column: auto;
-    margin-left: 0;
+  function getMediosDisplayEl(input) {
+    if (!input || !input.id) return null;
+    var dispId = input.id.replace(/^input-/, "display-");
+    return document.getElementById(dispId);
   }
 
-  .option-grid--5 .option-card:nth-child(5) {
-    grid-column: auto;
+  function syncMediosUI(input) {
+    if (!input || !input.classList.contains("input-medios")) return;
+    var m = clampMedios(input.value);
+    input.value = String(m);
+    var disp = getMediosDisplayEl(input);
+    if (disp) {
+      disp.textContent = formatPesoSelector(m);
+    }
   }
 
-  .option-grid--5 {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-.option-card {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 3rem;
-  padding: 0.5rem 0.65rem;
-  border: 2px solid rgba(26, 61, 47, 0.12);
-  border-radius: var(--radius);
-  background: var(--bg);
-  cursor: pointer;
-  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
-  text-align: center;
-}
-
-.option-card:hover {
-  border-color: rgba(45, 90, 71, 0.35);
-}
-
-.option-card:has(input:focus-visible) {
-  outline: 2px solid var(--accent-soft);
-  outline-offset: 2px;
-}
-
-.option-card:has(input:checked) {
-  border-color: var(--accent);
-  background: rgba(45, 90, 71, 0.06);
-  box-shadow: inset 0 0 0 1px rgba(45, 90, 71, 0.2);
-}
-
-.option-card input {
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-  margin: 0;
-}
-
-.option-card-text {
-  font-size: 0.9rem;
-  font-weight: 500;
-  line-height: 1.25;
-  pointer-events: none;
-}
-
-.docenas-field {
-  margin-bottom: 1.5rem;
-}
-
-.docenas-field label {
-  display: block;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 0.65rem;
-}
-
-.docenas-control {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  max-width: 220px;
-}
-
-.docenas-btn {
-  width: 2.75rem;
-  height: 2.75rem;
-  border: 2px solid rgba(26, 61, 47, 0.15);
-  border-radius: var(--radius);
-  background: var(--surface);
-  font-size: 1.25rem;
-  line-height: 1;
-  cursor: pointer;
-  color: var(--ink);
-  transition: border-color 0.2s, background 0.2s;
-}
-
-.docenas-btn:hover {
-  border-color: var(--accent-soft);
-  background: rgba(45, 90, 71, 0.06);
-}
-
-.docenas-control input[type="number"] {
-  flex: 1;
-  min-width: 0;
-  text-align: center;
-  font-family: var(--font-body);
-  font-size: 1.15rem;
-  font-weight: 600;
-  padding: 0.5rem;
-  border: 2px solid rgba(26, 61, 47, 0.15);
-  border-radius: var(--radius);
-  background: var(--bg);
-  color: var(--ink);
-  appearance: textfield;
-  -moz-appearance: textfield;
-}
-
-.docenas-control input[type="number"]::-webkit-outer-spin-button,
-.docenas-control input[type="number"]::-webkit-inner-spin-button {
-  appearance: none;
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-.sorrentino-notice {
-  margin: 0 0 1.1rem;
-  padding: 0.85rem 1rem;
-  border-radius: var(--radius);
-  background: rgba(201, 162, 74, 0.1);
-  border: 1px solid rgba(201, 162, 74, 0.35);
-  border-left: 3px solid var(--gold);
-}
-
-.sorrentino-notice p {
-  margin: 0;
-  font-size: 0.88rem;
-  line-height: 1.55;
-  color: var(--ink-muted);
-}
-
-.sorrentino-notice strong {
-  color: var(--forest);
-  font-weight: 600;
-}
-
-.modal-footer {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.65rem;
-  justify-content: flex-end;
-  padding-top: 0.25rem;
-}
-
-.modal-footer .btn-ghost {
-  margin-right: auto;
-}
-
-@media (max-width: 420px) {
-  .modal-footer {
-    flex-direction: column-reverse;
+  function syncUnidadesUI(input) {
+    if (!input || !input.classList.contains("input-unidades")) return;
+    var m = clampMedios(input.value);
+    input.value = String(m);
+    var disp = getMediosDisplayEl(input);
+    if (disp) {
+      disp.textContent = m === 1 ? "1 u." : m + " u.";
+    }
   }
 
-  .modal-footer .btn-ghost {
-    margin-right: 0;
+  var toastTimer = null;
+  var toastHideTimer = null;
+  var toastEl = null;
+
+  function getToastEl() {
+    if (!toastEl) {
+      toastEl = document.getElementById("cart-toast");
+    }
+    return toastEl;
   }
 
-  .modal-footer .btn {
-    width: 100%;
+  function showCartToast(productName) {
+    var el = getToastEl();
+    if (!el) return;
+    if (toastTimer) clearTimeout(toastTimer);
+    if (toastHideTimer) clearTimeout(toastHideTimer);
+    var name = String(productName || "Producto").trim();
+    el.textContent = "Se sumó " + name + " al carro.";
+    el.hidden = false;
+    requestAnimationFrame(function () {
+      el.classList.add("is-visible");
+    });
+    toastTimer = setTimeout(function () {
+      el.classList.remove("is-visible");
+      toastHideTimer = setTimeout(function () {
+        el.hidden = true;
+        toastTimer = null;
+        toastHideTimer = null;
+      }, 300);
+    }, 3200);
   }
 
-  .option-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Sections */
-.section {
-  padding: clamp(2.5rem, 6vw, 4rem) 0;
-}
-
-.section-alt {
-  background: var(--bg-alt);
-}
-
-.section-title {
-  font-family: var(--font-display);
-  font-size: clamp(1.85rem, 4vw, 2.35rem);
-  font-weight: 700;
-  text-align: center;
-  margin: 0 0 0.5rem;
-  color: var(--forest);
-}
-
-.section-lead {
-  text-align: center;
-  color: var(--ink-muted);
-  margin: 0 0 2.5rem;
-  font-size: 1.05rem;
-}
-
-.section-hint {
-  text-align: center;
-  color: var(--ink-muted);
-  margin: -0.25rem auto 1.75rem;
-  max-width: 40ch;
-  font-size: 0.98rem;
-  line-height: 1.45;
-}
-
-/* Cards */
-.card {
-  background: var(--surface);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow);
-  border: 1px solid rgba(26, 61, 47, 0.1);
-  border-top: 3px solid rgba(201, 162, 74, 0.55);
-}
-
-.card-feature {
-  max-width: 560px;
-  margin-inline: auto;
-}
-
-.card-feature-body {
-  padding: clamp(1.5rem, 4vw, 2.25rem);
-}
-
-/* Sorrentinos two-column grid */
-.sorrentinos-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  max-width: 720px;
-  margin-inline: auto;
-}
-
-.card-sorrentino {
-  padding: clamp(1.25rem, 3vw, 1.75rem);
-}
-
-.card-sorrentino--premium {
-  border-top-color: var(--gold);
-}
-
-.card-sorrentino-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.card-sorrentino-header h3 {
-  font-family: var(--font-display);
-  font-size: 1.3rem;
-  font-weight: 700;
-  margin: 0;
-  color: var(--forest);
-}
-
-.card-sorrentino--premium .card-sorrentino-header h3 {
-  color: var(--gold);
-}
-
-.price--premium {
-  color: var(--gold);
-}
-
-.sorrentinos-cta {
-  display: flex;
-  justify-content: center;
-  margin-top: 1.5rem;
-}
-
-.btn-large {
-  padding: 0.85rem 2.5rem;
-  font-size: 1.05rem;
-}
-
-@media (max-width: 480px) {
-  .sorrentinos-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.card-feature h3,
-.card-small h3 {
-  font-family: var(--font-display);
-  font-size: 1.65rem;
-  font-weight: 700;
-  margin: 0 0 0.5rem;
-  color: var(--forest);
-}
-
-.card-sub {
-  margin: 0 0 1.25rem;
-  color: var(--ink-muted);
-  font-size: 0.98rem;
-}
-
-.price-block {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  margin-bottom: 1.5rem;
-}
-
-.price {
-  font-family: var(--font-display);
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--gold);
-}
-
-.price-unit {
-  font-size: 0.95rem;
-  color: var(--ink-muted);
-  text-transform: lowercase;
-}
-
-.flavors-label {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--forest-mid);
-  margin: 1rem 0 0.65rem;
-}
-
-.flavors-label:first-of-type {
-  margin-top: 0;
-}
-
-.flavors-label--premium {
-  color: var(--gold);
-}
-
-.flavors {
-  margin: 0;
-  padding-left: 1.25rem;
-  color: var(--ink);
-}
-
-.flavors li {
-  margin-bottom: 0.35rem;
-}
-
-.grid-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1.25rem;
-  margin-top: 0.5rem;
-}
-
-.card-small {
-  padding: 1.5rem 1.35rem;
-}
-
-.card-small .price-block {
-  margin-bottom: 1rem;
-}
-
-/* Steps */
-.steps {
-  list-style: none;
-  margin: 0 auto 2.5rem;
-  padding: 0;
-  max-width: 640px;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.step {
-  display: flex;
-  gap: 1.25rem;
-  align-items: flex-start;
-}
-
-.step-num {
-  flex-shrink: 0;
-  width: 2.5rem;
-  height: 2.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(145deg, var(--gold-light) 0%, var(--gold) 45%, var(--forest-mid) 100%);
-  color: #fff;
-  font-weight: 700;
-  font-size: 1.1rem;
-  border-radius: 50%;
-  box-shadow: 0 4px 14px rgba(26, 61, 47, 0.35);
-}
-
-.step-body h3 {
-  font-family: var(--font-display);
-  font-size: 1.35rem;
-  font-weight: 700;
-  margin: 0 0 0.35rem;
-  color: var(--forest);
-}
-
-.step-body p {
-  margin: 0;
-  color: var(--ink-muted);
-  font-size: 0.98rem;
-}
-
-.cta-wrap {
-  text-align: center;
-}
-
-/* Footer */
-.site-footer {
-  background: linear-gradient(180deg, var(--forest) 0%, #142e24 100%);
-  color: #e8e0d4;
-  padding: 2rem 0;
-  border-top: 1px solid rgba(201, 162, 74, 0.2);
-}
-
-.footer-inner {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.footer-inner strong {
-  font-family: var(--font-display);
-  font-size: 1.2rem;
-  font-weight: 600;
-  display: block;
-  color: #fff;
-}
-
-.footer-tagline {
-  margin: 0.35rem 0 0;
-  font-size: 0.92rem;
-  opacity: 0.85;
-}
-
-.footer-location {
-  margin: 0.65rem 0 0;
-  font-size: 0.88rem;
-  color: rgba(232, 224, 212, 0.85);
-  letter-spacing: 0.02em;
-}
-
-.footer-social {
-  display: flex;
-  align-items: center;
-}
-
-.footer-instagram {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.6rem 1rem;
-  border-radius: 999px;
-  font-family: var(--font-body);
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #fff !important;
-  background: linear-gradient(135deg, #f58529 0%, #dd2a7b 45%, #8134af 75%, #515bd4 100%);
-  text-decoration: none;
-  box-shadow: 0 4px 16px rgba(221, 42, 123, 0.35);
-  transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
-}
-
-.footer-instagram:hover {
-  opacity: 0.88;
-  color: #fff !important;
-  text-decoration: none;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(221, 42, 123, 0.45);
-}
-
-.footer-instagram svg {
-  display: block;
-  flex-shrink: 0;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .footer-instagram:hover {
-    transform: none;
-  }
-}
-
-.footer-whatsapp {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.65rem 1.15rem;
-  border-radius: 999px;
-  font-family: var(--font-body);
-  font-size: 1rem;
-  font-weight: 600;
-  color: #fff !important;
-  background: var(--whatsapp);
-  border: 2px solid transparent;
-  text-decoration: none;
-  box-shadow: 0 4px 16px rgba(37, 211, 102, 0.35);
-  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
-}
-
-.footer-whatsapp:hover {
-  background: var(--whatsapp-dark);
-  color: #fff !important;
-  text-decoration: none;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.45);
-}
-
-.footer-whatsapp-icon {
-  display: flex;
-  flex-shrink: 0;
-}
-
-.footer-whatsapp-icon svg {
-  display: block;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .footer-whatsapp:hover {
-    transform: none;
-  }
-}
-
-/* Toast — producto agregado al carro */
-.cart-toast {
-  position: fixed;
-  z-index: 300;
-  left: 50%;
-  bottom: 1.35rem;
-  transform: translateX(-50%) translateY(12px);
-  max-width: min(92vw, 380px);
-  padding: 0.85rem 1.15rem;
-  border-radius: var(--radius);
-  background: linear-gradient(180deg, var(--forest-mid) 0%, var(--forest) 100%);
-  color: #faf6ef;
-  font-size: 0.95rem;
-  font-weight: 500;
-  line-height: 1.4;
-  text-align: center;
-  box-shadow: 0 12px 40px rgba(26, 61, 47, 0.35);
-  border: 1px solid rgba(201, 162, 74, 0.25);
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
-}
-
-.cart-toast.is-visible {
-  opacity: 1;
-  visibility: visible;
-  transform: translateX(-50%) translateY(0);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .cart-toast {
-    transition: opacity 0.2s ease, visibility 0.2s;
+  function linePrice(item) {
+    if (item.type === "fideo") {
+      var unit = PRICES.fideo[item.fideoId];
+      return item.mediosKg * (unit || 0);
+    }
+    if (item.type === "sorrentino") {
+      var isPremium = PRICES.sorrentinoPremiumRellenos.indexOf(item.relleno) !== -1;
+      var precio = isPremium ? PRICES.sorrentinoDocenaPremium : PRICES.sorrentinoDocena;
+      return item.docenas * precio;
+    }
+    if (item.type === "postre") {
+      var pu = PRICES.postre[item.postreId];
+      return item.unidades * (pu || 0);
+    }
+    return 0;
   }
 
-  .cart-toast.is-visible {
-    transform: translateX(-50%);
-  }
-}
-
-/* Reveal animation (enhanced by JS) */
-.reveal {
-  opacity: 0;
-  transform: translateY(16px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
-}
-
-.reveal.is-visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
+  function cartTotal() {
+    return cart.reduce(function (sum, item) {
+      return sum + linePrice(item);
+    }, 0);
   }
 
-  .reveal {
-    opacity: 1;
-    transform: none;
-    transition: none;
+  function loadCart() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      var data = JSON.parse(raw);
+      if (!Array.isArray(data)) return;
+      cart = data.filter(function (it) {
+        if (it.type === "fideo") {
+          return (
+            it.fideoId &&
+            typeof it.mediosKg === "number" &&
+            it.mediosKg >= 1
+          );
+        }
+        if (it.type === "sorrentino") {
+          return (
+            it.masa &&
+            it.relleno &&
+            typeof it.docenas === "number" &&
+            it.docenas >= 1
+          );
+        }
+        if (it.type === "postre") {
+          return (
+            it.postreId &&
+            typeof it.unidades === "number" &&
+            it.unidades >= 1
+          );
+        }
+        return false;
+      });
+      cart.forEach(function (it) {
+        if (!it.id) it.id = genId();
+      });
+    } catch (e) {
+      cart = [];
+    }
   }
 
-  .btn:hover {
-    transform: none;
+  function saveCart() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+    } catch (e) {}
   }
-}
+
+  function addFideo(fideoId, mediosKg) {
+    mediosKg = clampMedios(mediosKg);
+    var existing = cart.find(function (i) {
+      return i.type === "fideo" && i.fideoId === fideoId;
+    });
+    if (existing) {
+      existing.mediosKg += mediosKg;
+    } else {
+      cart.push({
+        id: genId(),
+        type: "fideo",
+        fideoId: fideoId,
+        mediosKg: mediosKg,
+      });
+    }
+    saveCart();
+    renderCart();
+    var label = FIDEO_LABELS[fideoId] || fideoId;
+    showCartToast(
+      "Fideos " + label + " (" + formatPesoSelector(mediosKg) + ")"
+    );
+  }
+
+  function addSorrentino(masa, relleno, docenas) {
+    docenas = clampDocenas(docenas);
+    var existing = cart.find(function (i) {
+      return (
+        i.type === "sorrentino" &&
+        i.masa === masa &&
+        i.relleno === relleno
+      );
+    });
+    if (existing) {
+      existing.docenas += docenas;
+    } else {
+      cart.push({
+        id: genId(),
+        type: "sorrentino",
+        masa: masa,
+        relleno: relleno,
+        docenas: docenas,
+      });
+    }
+    saveCart();
+    renderCart();
+    showCartToast("Sorrentino (" + masa + " · " + relleno + ")");
+  }
+
+  function addPostre(postreId, unidades) {
+    unidades = clampMedios(unidades);
+    var existing = cart.find(function (i) {
+      return i.type === "postre" && i.postreId === postreId;
+    });
+    if (existing) {
+      existing.unidades += unidades;
+    } else {
+      cart.push({
+        id: genId(),
+        type: "postre",
+        postreId: postreId,
+        unidades: unidades,
+      });
+    }
+    saveCart();
+    renderCart();
+    var label = POSTRE_LABELS[postreId] || postreId;
+    showCartToast(label + " (" + unidades + " u.)");
+  }
+
+  function removeItem(id) {
+    cart = cart.filter(function (i) {
+      return i.id !== id;
+    });
+    saveCart();
+    renderCart();
+  }
+
+  function clearCart() {
+    cart = [];
+    saveCart();
+    renderCart();
+  }
+
+  var dialogCart = document.getElementById("dialog-cart");
+  var cartList = document.getElementById("cart-list");
+  var cartEmpty = document.getElementById("cart-empty");
+  var cartFooter = document.getElementById("cart-footer");
+  var cartTotalEl = document.getElementById("cart-total");
+  var cartBadge = document.getElementById("cart-badge");
+  var cartBadgeMobile = document.getElementById("cart-badge-mobile");
+
+  function setBadgeCount(n) {
+    var text = String(n);
+    if (cartBadge) {
+      cartBadge.textContent = text;
+      cartBadge.hidden = n === 0;
+    }
+    if (cartBadgeMobile) {
+      cartBadgeMobile.textContent = text;
+      cartBadgeMobile.hidden = n === 0;
+    }
+  }
+
+  function describeFideoLine(item) {
+    var label = FIDEO_LABELS[item.fideoId] || item.fideoId;
+    var kg = formatKgFromMedios(item.mediosKg);
+    var packs =
+      item.mediosKg === 1
+        ? "1 × ½ kg"
+        : item.mediosKg + " × ½ kg";
+    return {
+      title: "Fideos " + label,
+      detail: kg + " (" + packs + ")",
+      price: linePrice(item),
+    };
+  }
+
+  function describeSorrentinoLine(item) {
+    var docTxt =
+      item.docenas === 1 ? "1 docena" : item.docenas + " docenas";
+    return {
+      title: "Sorrentinos",
+      detail:
+        "Masa: " +
+        item.masa +
+        " · Relleno: " +
+        item.relleno +
+        " · " +
+        docTxt,
+      price: linePrice(item),
+    };
+  }
+
+  function describePostreLine(item) {
+    var uTxt =
+      item.unidades === 1 ? "1 unidad" : item.unidades + " unidades";
+    return {
+      title: POSTRE_LABELS[item.postreId] || item.postreId,
+      detail: uTxt,
+      price: linePrice(item),
+    };
+  }
+
+  function renderCart() {
+    setBadgeCount(cart.length);
+
+    if (!cartList || !cartEmpty || !cartFooter || !cartTotalEl) return;
+
+    cartList.innerHTML = "";
+
+    if (cart.length === 0) {
+      cartEmpty.hidden = false;
+      cartList.hidden = true;
+      cartFooter.hidden = true;
+      return;
+    }
+
+    cartEmpty.hidden = true;
+    cartList.hidden = false;
+    cartFooter.hidden = false;
+
+    cart.forEach(function (item) {
+      var desc =
+        item.type === "fideo"
+          ? describeFideoLine(item)
+          : item.type === "postre"
+          ? describePostreLine(item)
+          : describeSorrentinoLine(item);
+
+      var li = document.createElement("li");
+      li.className = "cart-line";
+      li.dataset.itemId = item.id;
+
+      var main = document.createElement("div");
+      main.className = "cart-line-main";
+
+      var title = document.createElement("strong");
+      title.className = "cart-line-title";
+      title.textContent = desc.title;
+
+      var detail = document.createElement("p");
+      detail.className = "cart-line-detail";
+      detail.textContent = desc.detail;
+
+      var price = document.createElement("span");
+      price.className = "cart-line-price";
+      price.textContent = formatMoney(desc.price);
+
+      main.appendChild(title);
+      main.appendChild(detail);
+
+      var actions = document.createElement("div");
+      actions.className = "cart-line-actions";
+      actions.appendChild(price);
+
+      var rm = document.createElement("button");
+      rm.type = "button";
+      rm.className = "cart-line-remove";
+      rm.setAttribute("aria-label", "Quitar del carrito");
+      rm.dataset.removeId = item.id;
+      rm.textContent = "Quitar";
+      actions.appendChild(rm);
+
+      li.appendChild(main);
+      li.appendChild(actions);
+      cartList.appendChild(li);
+    });
+
+    cartTotalEl.textContent = formatMoney(cartTotal());
+  }
+
+  function buildWhatsAppMessage(datosCliente) {
+    var lines = [];
+    lines.push("Hola! Quiero confirmar este pedido:");
+    lines.push("");
+
+    if (datosCliente) {
+      lines.push("Nombre: " + datosCliente.nombre);
+      lines.push(
+        "Dirección: " +
+          (datosCliente.direccion && String(datosCliente.direccion).trim()
+            ? datosCliente.direccion.trim()
+            : "—")
+      );
+      lines.push(
+        "Entrega: " +
+          (datosCliente.entrega === "envio" ? "Envío" : "Retiro")
+      );
+      if (datosCliente.entrega === "envio") {
+        lines.push("*El precio de envío se confirmará por WhatsApp.*");
+      }
+      lines.push("");
+    }
+
+    var fideos = cart.filter(function (i) {
+      return i.type === "fideo";
+    });
+    var sorts = cart.filter(function (i) {
+      return i.type === "sorrentino";
+    });
+    var postres = cart.filter(function (i) {
+      return i.type === "postre";
+    });
+
+    if (fideos.length) {
+      lines.push("Fideos:");
+      fideos.forEach(function (item) {
+        var d = describeFideoLine(item);
+        lines.push(
+          "• " +
+            d.title.replace(/^Fideos /, "") +
+            " — " +
+            d.detail +
+            " — " +
+            formatMoney(d.price)
+        );
+      });
+      lines.push("");
+    }
+
+    if (sorts.length) {
+      lines.push("Sorrentinos:");
+      sorts.forEach(function (item) {
+        var d = describeSorrentinoLine(item);
+        lines.push(
+          "• Masa " +
+            item.masa +
+            ", relleno " +
+            item.relleno +
+            " — " +
+            (item.docenas === 1
+              ? "1 docena"
+              : item.docenas + " docenas") +
+            " — " +
+            formatMoney(linePrice(item))
+        );
+      });
+      lines.push("");
+    }
+
+    if (postres.length) {
+      lines.push("Postres:");
+      postres.forEach(function (item) {
+        var d = describePostreLine(item);
+        lines.push(
+          "• " +
+            d.title +
+            " — " +
+            d.detail +
+            " — " +
+            formatMoney(d.price)
+        );
+      });
+      lines.push("");
+    }
+
+    lines.push("Total estimado: " + formatMoney(cartTotal()));
+    lines.push("");
+    lines.push("Gracias!");
+    return lines.join("\n");
+  }
+
+  function openCart() {
+    if (!dialogCart) return;
+    renderCart();
+    if (typeof dialogCart.showModal === "function") {
+      dialogCart.showModal();
+    }
+    if (menuToggle && mobileNav && mobileNav.hidden === false) {
+      menuToggle.setAttribute("aria-expanded", "false");
+      mobileNav.hidden = true;
+    }
+  }
+
+  function closeCart() {
+    if (!dialogCart) return;
+    if (typeof dialogCart.close === "function") {
+      dialogCart.close();
+    }
+  }
+
+  var dialogCheckout = document.getElementById("dialog-checkout");
+  var formCheckout = document.getElementById("form-checkout");
+  var inputCheckoutNombre = document.getElementById("checkout-nombre");
+  var inputCheckoutDireccion = document.getElementById("checkout-direccion");
+  var selectCheckoutEntrega = document.getElementById("checkout-entrega");
+  var btnCheckoutClose = document.getElementById("checkout-close");
+  var btnCheckoutBack = document.getElementById("checkout-back");
+
+  function openCheckoutDialog() {
+    if (!dialogCheckout) return;
+    if (selectCheckoutEntrega) {
+      updateDireccionRequired();
+    }
+    if (typeof dialogCheckout.showModal === "function") {
+      dialogCheckout.showModal();
+    }
+    if (inputCheckoutNombre) {
+      inputCheckoutNombre.focus();
+    }
+  }
+
+  function closeCheckoutDialog() {
+    if (!dialogCheckout) return;
+    if (typeof dialogCheckout.close === "function") {
+      dialogCheckout.close();
+    }
+  }
+
+  function updateDireccionRequired() {
+    if (!selectCheckoutEntrega) return;
+    var isEnvio = selectCheckoutEntrega.value === "envio";
+    if (inputCheckoutDireccion) {
+      inputCheckoutDireccion.required = isEnvio;
+    }
+    var notice = document.getElementById("checkout-envio-notice");
+    if (notice) {
+      notice.hidden = !isEnvio;
+    }
+  }
+
+  if (dialogCart) {
+    dialogCart.addEventListener("click", function (e) {
+      if (e.target === dialogCart) {
+        closeCart();
+      }
+    });
+  }
+
+  if (cartList) {
+    cartList.addEventListener("click", function (e) {
+      var btn = e.target && e.target.closest
+        ? e.target.closest(".cart-line-remove")
+        : null;
+      if (btn && btn.dataset.removeId) {
+        removeItem(btn.dataset.removeId);
+      }
+    });
+  }
+
+  function wireOpenCartButtons() {
+    var ids = [
+      "btn-cart-toggle",
+      "btn-cart-toggle-mobile",
+      "hero-open-cart",
+      "cta-open-cart",
+    ];
+    ids.forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) {
+        el.addEventListener("click", function () {
+          openCart();
+        });
+      }
+    });
+  }
+
+  var cartCloseBtn = document.getElementById("cart-dialog-close");
+  if (cartCloseBtn) {
+    cartCloseBtn.addEventListener("click", closeCart);
+  }
+
+  document.querySelectorAll("[data-cart-close-link]").forEach(function (a) {
+    a.addEventListener("click", function () {
+      closeCart();
+    });
+  });
+
+  var cartClear = document.getElementById("cart-clear");
+  if (cartClear) {
+    cartClear.addEventListener("click", function () {
+      clearCart();
+    });
+  }
+
+  var cartCheckout = document.getElementById("cart-checkout");
+  if (cartCheckout) {
+    cartCheckout.addEventListener("click", function () {
+      if (cart.length === 0) return;
+      closeCart();
+      openCheckoutDialog();
+    });
+  }
+
+  if (selectCheckoutEntrega) {
+    selectCheckoutEntrega.addEventListener("change", updateDireccionRequired);
+  }
+
+  if (btnCheckoutClose) {
+    btnCheckoutClose.addEventListener("click", function () {
+      closeCheckoutDialog();
+    });
+  }
+
+  if (btnCheckoutBack) {
+    btnCheckoutBack.addEventListener("click", function () {
+      closeCheckoutDialog();
+      openCart();
+    });
+  }
+
+  if (dialogCheckout) {
+    dialogCheckout.addEventListener("click", function (e) {
+      if (e.target === dialogCheckout) {
+        closeCheckoutDialog();
+      }
+    });
+  }
+
+  if (formCheckout) {
+    formCheckout.addEventListener("submit", function (e) {
+      e.preventDefault();
+      updateDireccionRequired();
+      if (!formCheckout.reportValidity()) return;
+
+      var fd = new FormData(formCheckout);
+      var nombre = String(fd.get("nombre") || "").trim();
+      var direccion = String(fd.get("direccion") || "").trim();
+      var entrega = fd.get("entrega");
+
+      var datosCliente = {
+        nombre: nombre,
+        direccion: direccion,
+        entrega: entrega,
+      };
+
+      var url =
+        "https://wa.me/" +
+        WA_PHONE +
+        "?text=" +
+        encodeURIComponent(buildWhatsAppMessage(datosCliente));
+      window.open(url, "_blank", "noopener,noreferrer");
+      formCheckout.reset();
+      updateDireccionRequired();
+      closeCheckoutDialog();
+    });
+  }
+
+  document.querySelectorAll(".js-add-fideo").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var fid = btn.getAttribute("data-fideo");
+      if (!fid) return;
+      var card = btn.closest("[data-fideo-card]");
+      var input = card
+        ? card.querySelector(".input-medios")
+        : document.getElementById("input-medios-" + fid);
+      var medios = input ? clampMedios(input.value) : 1;
+      addFideo(fid, medios);
+      if (input) {
+        input.value = "1";
+        syncMediosUI(input);
+      }
+    });
+  });
+
+  function mediosInputFromButton(btn) {
+    var id = btn.getAttribute("data-medios-target");
+    return id ? document.getElementById(id) : null;
+  }
+
+  document.querySelectorAll(".js-medios-menos").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var input = mediosInputFromButton(btn);
+      if (!input) return;
+      var v = clampMedios((parseInt(input.value, 10) || 1) - 1);
+      input.value = String(v);
+      syncMediosUI(input);
+    });
+  });
+
+  document.querySelectorAll(".js-medios-mas").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var input = mediosInputFromButton(btn);
+      if (!input) return;
+      var v = clampMedios((parseInt(input.value, 10) || 1) + 1);
+      input.value = String(v);
+      syncMediosUI(input);
+    });
+  });
+
+  document.querySelectorAll(".input-medios").forEach(function (input) {
+    syncMediosUI(input);
+  });
+
+  function unidadesInputFromButton(btn) {
+    var id = btn.getAttribute("data-unidades-target");
+    return id ? document.getElementById(id) : null;
+  }
+
+  document.querySelectorAll(".js-add-postre").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var pid = btn.getAttribute("data-postre");
+      if (!pid) return;
+      var card = btn.closest("[data-postre-card]");
+      var input = card
+        ? card.querySelector(".input-unidades")
+        : document.getElementById("input-unidades-" + pid);
+      var u = input ? clampMedios(input.value) : 1;
+      addPostre(pid, u);
+      if (input) {
+        input.value = "1";
+        syncUnidadesUI(input);
+      }
+    });
+  });
+
+  document.querySelectorAll(".js-unidades-menos").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var input = unidadesInputFromButton(btn);
+      if (!input) return;
+      var v = clampMedios((parseInt(input.value, 10) || 1) - 1);
+      input.value = String(v);
+      syncUnidadesUI(input);
+    });
+  });
+
+  document.querySelectorAll(".js-unidades-mas").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var input = unidadesInputFromButton(btn);
+      if (!input) return;
+      var v = clampMedios((parseInt(input.value, 10) || 1) + 1);
+      input.value = String(v);
+      syncUnidadesUI(input);
+    });
+  });
+
+  document.querySelectorAll(".input-unidades").forEach(function (input) {
+    syncUnidadesUI(input);
+  });
+
+  var dialogArma = document.getElementById("dialog-arma-sorrentino");
+  var btnArma = document.getElementById("btn-arma-sorrentino");
+  var btnClose = document.getElementById("dialog-arma-close");
+  var btnCancel = document.getElementById("dialog-arma-cancel");
+  var formArma = document.getElementById("form-arma-sorrentino");
+  var inputDocenas = document.getElementById("input-docenas");
+  var docenasMenos = document.getElementById("docenas-menos");
+  var docenasMas = document.getElementById("docenas-mas");
+
+  function openArmaDialog() {
+    if (!dialogArma) return;
+    if (typeof dialogArma.showModal === "function") {
+      dialogArma.showModal();
+    }
+  }
+
+  function closeArmaDialog() {
+    if (!dialogArma) return;
+    if (typeof dialogArma.close === "function") {
+      dialogArma.close();
+    }
+  }
+
+  function stepDocenas(delta) {
+    if (!inputDocenas) return;
+    var v = clampDocenas((parseInt(inputDocenas.value, 10) || 1) + delta);
+    inputDocenas.value = String(v);
+  }
+
+  if (btnArma && dialogArma) {
+    btnArma.addEventListener("click", openArmaDialog);
+  }
+
+  if (btnClose) {
+    btnClose.addEventListener("click", closeArmaDialog);
+  }
+
+  if (btnCancel) {
+    btnCancel.addEventListener("click", closeArmaDialog);
+  }
+
+  if (dialogArma) {
+    dialogArma.addEventListener("click", function (e) {
+      if (e.target === dialogArma) {
+        closeArmaDialog();
+      }
+    });
+  }
+
+  if (inputDocenas) {
+    inputDocenas.addEventListener("change", function () {
+      inputDocenas.value = String(clampDocenas(inputDocenas.value));
+    });
+    inputDocenas.addEventListener("blur", function () {
+      inputDocenas.value = String(clampDocenas(inputDocenas.value));
+    });
+  }
+
+  if (docenasMenos) {
+    docenasMenos.addEventListener("click", function () {
+      stepDocenas(-1);
+    });
+  }
+
+  if (docenasMas) {
+    docenasMas.addEventListener("click", function () {
+      stepDocenas(1);
+    });
+  }
+
+  if (formArma) {
+    formArma.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (!formArma.reportValidity()) return;
+
+      var fd = new FormData(formArma);
+      var masa = fd.get("masa");
+      var relleno = fd.get("relleno");
+      var docenas = clampDocenas(fd.get("docenas"));
+
+      addSorrentino(masa, relleno, docenas);
+      formArma.reset();
+      closeArmaDialog();
+    });
+  }
+
+  if (menuToggle && mobileNav) {
+    menuToggle.addEventListener("click", function () {
+      var expanded = menuToggle.getAttribute("aria-expanded") === "true";
+      menuToggle.setAttribute("aria-expanded", String(!expanded));
+      mobileNav.hidden = expanded;
+    });
+
+    mobileNav.querySelectorAll("a").forEach(function (link) {
+      link.addEventListener("click", function () {
+        menuToggle.setAttribute("aria-expanded", "false");
+        mobileNav.hidden = true;
+      });
+    });
+  }
+
+  loadCart();
+  wireOpenCartButtons();
+  renderCart();
+
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    var revealEls = document.querySelectorAll(
+      ".card, .step, .section-title + .section-lead, .cta-wrap"
+    );
+
+    revealEls.forEach(function (el) {
+      el.classList.add("reveal");
+    });
+
+    var observer = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { rootMargin: "0px 0px -8% 0px", threshold: 0.05 }
+    );
+
+    document.querySelectorAll(".reveal").forEach(function (el) {
+      observer.observe(el);
+    });
+  }
+})();
